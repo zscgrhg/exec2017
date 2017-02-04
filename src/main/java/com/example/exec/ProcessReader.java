@@ -34,20 +34,28 @@ public class ProcessReader extends Thread {
     }
 
     private void readStderr(InputStream in, String charset) {
-        Scanner scanner = new Scanner(in, charset);
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            handler.receiveError(line);
+        try {
+            Scanner scanner = new Scanner(in, charset);
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                handler.receiveError(line);
+            }
+        } finally {
+            handler.onStderrEnd();
         }
-        handler.onStderrEnd();
+
     }
 
     private void readStdout(InputStream in, String charset) {
-        Scanner scanner = new Scanner(in, charset);
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            handler.receive(line);
+        try {
+            Scanner scanner = new Scanner(in, charset);
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                handler.receive(line);
+            }
+        } finally {
+            handler.onStdoutEnd();
         }
-        handler.onStdoutEnd();
+
     }
 }
