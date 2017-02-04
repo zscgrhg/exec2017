@@ -18,8 +18,6 @@ public class HandlerThread<R> extends Thread implements Handler<R> {
     }
 
 
-
-
     @Override
     public void run() {
         boolean isInterrupted = isInterrupted();
@@ -57,50 +55,40 @@ public class HandlerThread<R> extends Thread implements Handler<R> {
         publish(handler.get());
     }
 
-    public void onComplete(int processExitValue) {
+    private static <T> void putIn(BlockingQueue<T> queue, T t) {
         try {
-            queue.put(new PMessage(PMessage.Key.FINISH, String.valueOf(processExitValue)));
-            join();
+            queue.put(t);
         } catch (InterruptedException e) {
+            putIn(queue, t);
             Thread.currentThread().interrupt();
         }
+    }
+
+    public void onComplete(int processExitValue) {
+        PMessage p = new PMessage(PMessage.Key.FINISH, String.valueOf(processExitValue));
+        putIn(queue,p);
     }
 
     public void onStderrEnd() {
-        try {
-            queue.put(new PMessage(PMessage.Key.STDERR_END, null));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        putIn(queue,new PMessage(PMessage.Key.STDERR_END, null));
     }
 
     public void onStdoutEnd() {
-        try {
-            queue.put(new PMessage(PMessage.Key.STDOUT_END, null));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        putIn(queue,new PMessage(PMessage.Key.STDOUT_END, null));
     }
 
     public void receiveError(String line) {
-        try {
-            queue.put(new PMessage(PMessage.Key.STDERR, line));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        putIn( queue,new PMessage(PMessage.Key.STDERR, line));
     }
 
     public void receive(String line) {
-        try {
-            queue.put(new PMessage(PMessage.Key.STDOUT, line));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        putIn(queue,new PMessage(PMessage.Key.STDOUT, line));
     }
 
     public synchronized R get() {
         return this.r;
     }
+
     private synchronized void publish(R r) {
         this.r = r;
     }

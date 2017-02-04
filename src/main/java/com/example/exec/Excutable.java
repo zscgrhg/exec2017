@@ -55,9 +55,9 @@ public abstract class Excutable<R> {
         try {
             waitUntilProcessExit(process);
         } finally {
+            killIfAlive(process);
             stdoutReader.join();
             stderrReader.join();
-            killIfAlive(process);
             handler.onComplete(process.exitValue());
         }
         return handler.get();
