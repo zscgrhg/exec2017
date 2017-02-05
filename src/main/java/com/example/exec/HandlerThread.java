@@ -13,7 +13,6 @@ public class HandlerThread<R> extends Thread implements Handler<R> {
 
     public HandlerThread(Handler<R> handler) {
         this.queue = new LinkedBlockingQueue<PMessage>();
-        ;
         this.handler = handler;
     }
 
@@ -55,34 +54,44 @@ public class HandlerThread<R> extends Thread implements Handler<R> {
         publish(handler.get());
     }
 
-    private static <T> void putIn(BlockingQueue<T> queue, T t) {
+    private static <T> void puts(BlockingQueue<T> queue, T t) {
         try {
             queue.put(t);
         } catch (InterruptedException e) {
-            putIn(queue, t);
+            puts(queue, t);
             Thread.currentThread().interrupt();
         }
     }
 
     public void onComplete(int processExitValue) {
         PMessage p = new PMessage(PMessage.Key.FINISH, String.valueOf(processExitValue));
-        putIn(queue,p);
+        puts(queue, p);
+        joins();
+    }
+
+    private void joins() {
+        try {
+            join();
+        } catch (InterruptedException e) {
+            joins();
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void onStderrEnd() {
-        putIn(queue,new PMessage(PMessage.Key.STDERR_END, null));
+        puts(queue, new PMessage(PMessage.Key.STDERR_END, null));
     }
 
     public void onStdoutEnd() {
-        putIn(queue,new PMessage(PMessage.Key.STDOUT_END, null));
+        puts(queue, new PMessage(PMessage.Key.STDOUT_END, null));
     }
 
     public void receiveError(String line) {
-        putIn( queue,new PMessage(PMessage.Key.STDERR, line));
+        puts(queue, new PMessage(PMessage.Key.STDERR, line));
     }
 
     public void receive(String line) {
-        putIn(queue,new PMessage(PMessage.Key.STDOUT, line));
+        puts(queue, new PMessage(PMessage.Key.STDOUT, line));
     }
 
     public synchronized R get() {
