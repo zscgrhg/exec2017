@@ -23,14 +23,10 @@ public abstract class Excutable<R> {
         return charset();
     }
 
-    public abstract Handler<R> createHandler();
+    public abstract Handler<R> createHandler(Process process);
 
     protected List<String> getCommandLines(String... args) {
         return Arrays.asList(args);
-    }
-
-    protected void waitUntilProcessExit(Process process) throws Exception {
-        process.waitFor();
     }
 
     protected Process createProcess(String... args) throws IOException {
@@ -44,7 +40,7 @@ public abstract class Excutable<R> {
 
         Process process = createProcess(args);
         InputStream errorStream = process.getErrorStream();
-        Handler<R> handler = createHandler();
+        Handler<R> handler = createHandler(process);
         ProcessReader stderrReader =
                 new ProcessReader(false, errorStream, stderrCharset(), handler);
         stderrReader.start();
@@ -53,7 +49,7 @@ public abstract class Excutable<R> {
                 new ProcessReader(inputStream, stdoutCharset(), handler);
         stdoutReader.start();
         try {
-            waitUntilProcessExit(process);
+            process.waitFor();
         } finally {
             killIfAlive(process);
             stdoutReader.join();

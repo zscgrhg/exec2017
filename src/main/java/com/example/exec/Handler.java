@@ -5,7 +5,6 @@ package com.example.exec;
  */
 public interface Handler<R> {
 
-
     void onComplete(int processExitValue);
 
     void onStderrEnd();

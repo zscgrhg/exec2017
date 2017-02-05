@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
  * Created by THINK on 2017/1/25.
  */
 public class CommonCmd extends Excutable<Integer> {
-    public ExitValueHandler createHandler() {
+    public ExitValueHandler createHandler(Process process) {
         return new ExitValueHandler();
     }
 
