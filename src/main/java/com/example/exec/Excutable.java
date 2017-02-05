@@ -29,6 +29,10 @@ public abstract class Excutable<R> {
         return Arrays.asList(args);
     }
 
+    protected void waitUntilProcessExit(Process process) throws Exception {
+        process.waitFor();
+    }
+
     protected Process createProcess(String... args) throws IOException {
         List<String> cmds = new ArrayList<String>();
         cmds.addAll(getCommandLines(args));
@@ -49,7 +53,7 @@ public abstract class Excutable<R> {
                 new ProcessReader(inputStream, stdoutCharset(), handler);
         stdoutReader.start();
         try {
-            process.waitFor();
+            waitUntilProcessExit(process);
         } finally {
             killIfAlive(process);
             stdoutReader.join();

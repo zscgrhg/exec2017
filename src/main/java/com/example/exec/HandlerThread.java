@@ -7,13 +7,13 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by THINK on 2017/1/25.
  */
 public class HandlerThread<R> extends Thread implements Handler<R> {
-    private final Process process;
+
     private final BlockingQueue<PMessage> queue;
     private final Handler<R> handler;
     private R r;
 
-    public HandlerThread(Process process, Handler<R> handler) {
-        this.process = process;
+    public HandlerThread(Handler<R> handler) {
+
         this.queue = new LinkedBlockingQueue<PMessage>();
         this.handler = handler;
     }

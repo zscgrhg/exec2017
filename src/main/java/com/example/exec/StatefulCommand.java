@@ -6,7 +6,7 @@ package com.example.exec;
 public abstract class StatefulCommand<R> extends Excutable<R> {
     @Override
     public Handler<R> createHandler(Process process) {
-        HandlerThread<R> handlerThread = new HandlerThread<R>(process, statefulHandler(process));
+        HandlerThread<R> handlerThread = new HandlerThread<R>(statefulHandler(process));
         handlerThread.start();
         return handlerThread;
     }
