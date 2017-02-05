@@ -65,12 +65,6 @@ public class HandlerThread<R> extends Thread implements Handler<R> {
         }
     }
 
-    public void onComplete(int processExitValue) {
-        PMessage p = new PMessage(PMessage.Key.FINISH, String.valueOf(processExitValue));
-        puts(queue, p);
-        joins();
-    }
-
     private void joins() {
         try {
             join();
@@ -79,6 +73,13 @@ public class HandlerThread<R> extends Thread implements Handler<R> {
             Thread.currentThread().interrupt();
         }
     }
+
+    public void onComplete(int processExitValue) {
+        PMessage p = new PMessage(PMessage.Key.FINISH, String.valueOf(processExitValue));
+        puts(queue, p);
+        joins();
+    }
+
 
     public void onStderrEnd() {
         puts(queue, new PMessage(PMessage.Key.STDERR_END, null));
