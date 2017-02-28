@@ -43,6 +43,7 @@ public abstract class Excutable<R> {
     public R excute(String... args) throws Exception {
 
         Process process = createProcess(args);
+        process.getOutputStream().close();
         InputStream errorStream = process.getErrorStream();
         Handler<R> handler = createHandler(process);
         ProcessReader stderrReader =
